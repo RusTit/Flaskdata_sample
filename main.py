@@ -19,7 +19,7 @@ class FlaskAPIToken(NamedTuple):
 
 
 class FlaskAPIIDPSelf(NamedTuple):
-    _id: int
+    item_id: int
     first_name: str
     last_name: str
     edc_username: str
@@ -30,7 +30,7 @@ class FlaskAPIIDPSelf(NamedTuple):
 
 
 class FlaskAPISubjectStudies(NamedTuple):
-    _id: int
+    item_id: int
     study_id: int
     official_title: str
     brief_title: str
