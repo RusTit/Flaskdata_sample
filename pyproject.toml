@@ -1,0 +1,14 @@
+[tool.flakehell]
+# specify any flake8 options. For example, exclude "example.py":
+exclude = [".git", "__pycache__", "output", "template", ".github", "venv"]
+# make output nice
+format = "grouped"
+# 80 chars aren't enough in 21 century
+max_line_length = 120
+# show line of source code in output
+show_source = true
+
+# list of plugins and rules for them
+[tool.flakehell.plugins]
+"flake8-*" = ["+*"]
+pyflakes = ["+*"]

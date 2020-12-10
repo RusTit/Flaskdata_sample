@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+
+[dev-packages]
+pytest = "*"
+pytest-asyncio = "*"
+flake8 = "*"
+flakehell = "*"
+flake8-bugbear = "*"
+flake8-builtins = "*"
+flake8-isort = "*"
+isort = "*"
+flake8-comprehensions = "*"
+
+[requires]
+python_version = "3.9"
