@@ -1,7 +1,7 @@
 from datetime import datetime
 from json import loads
 from os import getenv
-from typing import NamedTuple, List
+from typing import List, NamedTuple
 
 import requests
 
@@ -19,7 +19,7 @@ class FlaskAPIToken(NamedTuple):
 
 
 class FlaskAPIIDPSelf(NamedTuple):
-    id: int
+    _id: int
     first_name: str
     last_name: str
     edc_username: str
@@ -30,7 +30,7 @@ class FlaskAPIIDPSelf(NamedTuple):
 
 
 class FlaskAPISubjectStudies(NamedTuple):
-    id: int
+    _id: int
     study_id: int
     official_title: str
     brief_title: str
@@ -46,10 +46,10 @@ class FlaskAPI:
     password: str
     base_url: str
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str, base_url='https://demo-api.flaskdata.io'):
         self.username = username
         self.password = password
-        self.base_url = 'https://demo-api.flaskdata.io'
+        self.base_url = base_url
 
     def authorize(self) -> FlaskAPIToken:
         full_url = f'{self.base_url}/auth/authorize'
@@ -117,10 +117,15 @@ class FlaskAPI:
             raise ApiError('Invalid api response')
 
 
-class FlaskAPIIDP(FlaskAPI):
-    def __init__(self, username: str, password: str):
-        super().__init__(username, password)
-        self.base_url = 'https://demo-idp.flaskdata.io'
+class FlaskAPIIDP:
+    username: str
+    password: str
+    base_url: str
+
+    def __init__(self, username: str, password: str, base_url='https://demo-idp.flaskdata.io'):
+        self.username = username
+        self.password = password
+        self.base_url = base_url
 
     def authorize(self):
         full_url = f'{self.base_url}/auth/mobile-form-authorization'
