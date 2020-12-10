@@ -32,5 +32,10 @@ jobs:
       run: |
         flakehell lint
     - name: Test with pytest
+      env:
+        FLASK_API_USER: ${{ secrets.FLASK_API_USER }}
+        FLASK_API_PASSWORD: ${{ secrets.FLASK_API_PASSWORD }}
+        FLASK_API_IDP_USER: ${{ secrets.FLASK_API_IDP_USER }}
+        FLASK_API_IDP_PASSWORD: ${{ secrets.FLASK_API_IDP_PASSWORD }}
       run: |
         pytest
