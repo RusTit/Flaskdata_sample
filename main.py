@@ -93,14 +93,14 @@ class FlaskAPI:
         else:
             raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
 
-    def create_crf_and_insert_data(self, token):
+    def create_crf_and_insert_data(self, token: str, study_id: int, subject_label: str):
         full_url = f'{self.base_url}/flask/crf/create-CRF-and-insert-data'
         headers = {
             'Authorization': f'JWT {token}'  # or 'Bearer <ACCESS_TOKEN>'
         }
         data = {
-            "study_id": 3581600,
-            "subject_label": "001-023",
+            "study_id": study_id,
+            "subject_label": subject_label,
             "event_name": "01-Screening",
             "crf_name": "Demographics",
             "crf_data": {
@@ -186,9 +186,12 @@ def main():
     self_data = api_idp.get_self(api_idp_token.token)
 
     # 3
-    api.subject_studies(api_idp_token.token, self_data.item_id)
+    studies = api.subject_studies(api_idp_token.token, self_data.item_id)
 
-    api.create_crf_and_insert_data(api_token.token)
+    study = studies[0]
+
+    # "study_id": 3581600, "subject_label": "001-023",
+    api.create_crf_and_insert_data(api_token.token, study.study_id, self_data.study_subject_label)
 
 
 if __name__ == '__main__':
