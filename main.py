@@ -8,7 +8,7 @@ import requests
 DEFAULT_NET_DELAY = 20
 
 
-class ApiError(TypeError):
+class ApiError(ValueError):
     def __init__(self, *args):
         super().__init__(*args)
 
