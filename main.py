@@ -27,18 +27,18 @@ class FlaskAPIIDPSelf(NamedTuple):
     finished_tutorial: bool
     company_name: str
     study_subject_label: str
+    customer_id: int
+    phone: str
 
 
 class FlaskAPISubjectStudies(NamedTuple):
-    item_id: int
     study_id: int
-    official_title: str
     brief_title: str
-    detailed_description: str
-    sponsor: str
-    url: str
     unique_protocolid: str
-    dbname: str
+    official_title: str
+    status_id: int
+    status: str
+    study_status_id: int
 
 
 class FlaskAPI:
@@ -81,15 +81,13 @@ class FlaskAPI:
             result: List[FlaskAPISubjectStudies] = []
             for item in json:
                 result.append(FlaskAPISubjectStudies(
-                    item['id'],
                     item['study_id'],
-                    item['official_title'],
                     item['brief_title'],
-                    item['detailed_description'],
-                    item['sponsor'],
-                    item['url'],
                     item['unique_protocolid'],
-                    item['dbname'],
+                    item['official_title'],
+                    item['status_id'],
+                    item['status'],
+                    item['study_status_id'],
                 ))
             return result
         else:
@@ -102,7 +100,7 @@ class FlaskAPI:
         }
         data = {
             "study_id": 3581600,
-            "subject_label": "001 - 023",
+            "subject_label": "001-023",
             "event_name": "01-Screening",
             "crf_name": "Demographics",
             "crf_data": {
@@ -127,15 +125,21 @@ class FlaskAPIIDP:
         self.password = password
         self.base_url = base_url
 
-    def authorize(self):
+    def authorize(self, token: str) -> FlaskAPIToken:
         full_url = f'{self.base_url}/auth/mobile-form-authorization'
         data = {
-            "email": 'subjectdemo@repnets.com',
-            "password": '12345678De'
+            "email": self.username,
+            "password": self.password
         }
-        res = requests.post(full_url, json=data, timeout=DEFAULT_NET_DELAY)
+        headers = {
+            'Authorization': f'Bearer {token}'  # or 'Bearer <ACCESS_TOKEN>'
+        }
+        res = requests.post(full_url, json=data, timeout=DEFAULT_NET_DELAY, headers=headers)
         if res.status_code == 200:
-            pass
+            text = res.text
+            json = loads(text)
+            expired = datetime.strptime(json['expired'], '%Y-%m-%dT%H:%M:%S.%fZ')
+            return FlaskAPIToken(json['token'], expired)
         else:
             raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
 
@@ -157,6 +161,8 @@ class FlaskAPIIDP:
                 json['finished_tutorial'],
                 json['company_name'],
                 json['study_subject_label'],
+                json['customer_id'],
+                json['phone'],
             )
         else:
             raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
@@ -173,8 +179,16 @@ def main():
     api_idp = FlaskAPIIDP(FLASK_API_IDP_USER, FLASK_API_IDP_PASSWORD)
 
     # 1
-    api.authorize()
-    api_idp.authorize()
+    api_token = api.authorize()
+    api_idp_token = api_idp.authorize(api_token.token)
+
+    # 2
+    self_data = api_idp.get_self(api_idp_token.token)
+
+    # 3
+    api.subject_studies(api_idp_token.token, self_data.item_id)
+
+    api.create_crf_and_insert_data(api_token.token)
 
 
 if __name__ == '__main__':
