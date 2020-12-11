@@ -64,7 +64,7 @@ class FlaskAPI:
             expired = datetime.strptime(json['expired'], '%Y-%m-%dT%H:%M:%S.%fZ')
             return FlaskAPIToken(json['token'], expired)
         else:
-            raise ApiError('Invalid api response')
+            raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
 
     def subject_studies(self, token: str, subject_id: int) -> List[FlaskAPISubjectStudies]:
         full_url = f'{self.base_url}/flask/study/subject-studies'
@@ -91,7 +91,7 @@ class FlaskAPI:
                 ))
             return result
         else:
-            raise ApiError('Invalid api response')
+            raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
 
     def create_crf_and_insert_data(self, token):
         full_url = f'{self.base_url}/flask/crf/create-CRF-and-insert-data'
@@ -112,7 +112,7 @@ class FlaskAPI:
         if res.status_code == 200:
             return
         else:
-            raise ApiError('Invalid api response')
+            raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
 
 
 class FlaskAPIIDP:
@@ -132,7 +132,7 @@ class FlaskAPIIDP:
             "password": self.password
         }
         headers = {
-            'Authorization': f'Bearer {token}'  # or 'Bearer <ACCESS_TOKEN>'
+            'Authorization': f'JWT {token}'  # or 'Bearer <ACCESS_TOKEN>'
         }
         res = requests.post(full_url, json=data, timeout=DEFAULT_NET_DELAY, headers=headers)
         if res.status_code == 200:
