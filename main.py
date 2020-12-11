@@ -148,7 +148,7 @@ class FlaskAPIIDP:
             'Authorization': f'JWT {token}'  # or 'Bearer <ACCESS_TOKEN>'
         }
         full_url = f'{self.base_url}/auth/self'
-        res = requests.get(full_url, headers=headers)
+        res = requests.get(full_url, headers=headers, timeout=DEFAULT_NET_DELAY)
         if res.status_code == 200:
             text = res.text
             json = loads(text)
