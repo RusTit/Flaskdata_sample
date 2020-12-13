@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from json import loads
 from os import getenv
@@ -41,18 +42,14 @@ class FlaskAPISubjectStudies(NamedTuple):
     study_status_id: int
 
 
-class FlaskAPI:
-    username: str
-    password: str
-    base_url: str
-
-    def __init__(self, username: str, password: str, base_url='https://demo-api.flaskdata.io'):
+class ApiCommon(metaclass=ABCMeta):
+    def __init__(self, username: str, password: str, base_url):
         self.username = username
-        self.password = password
         self.base_url = base_url
+        self.password = password
 
-    def authorize(self) -> FlaskAPIToken:
-        full_url = f'{self.base_url}/auth/authorize'
+    def authorize(self):
+        full_url = self.full_authorize_url()
         data = {
             "email": self.username,
             "password": self.password
@@ -65,6 +62,18 @@ class FlaskAPI:
             return FlaskAPIToken(json['token'], expired)
         else:
             raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
+
+    @abstractmethod
+    def full_authorize_url(self) -> str:
+        pass
+
+
+class FlaskAPI(ApiCommon):
+    def __init__(self, username: str, password: str, base_url='https://demo-api.flaskdata.io'):
+        super().__init__(username, password, base_url)
+
+    def full_authorize_url(self) -> str:
+        return f'{self.base_url}/auth/authorize'
 
     def subject_studies(self, token: str, subject_id: int) -> List[FlaskAPISubjectStudies]:
         full_url = f'{self.base_url}/flask/study/subject-studies'
@@ -115,30 +124,12 @@ class FlaskAPI:
             raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
 
 
-class FlaskAPIIDP:
-    username: str
-    password: str
-    base_url: str
-
+class FlaskAPIIDP(ApiCommon):
     def __init__(self, username: str, password: str, base_url='https://demo-idp.flaskdata.io'):
-        self.username = username
-        self.password = password
-        self.base_url = base_url
+        super().__init__(username, password, base_url)
 
-    def authorize(self) -> FlaskAPIToken:
-        full_url = f'{self.base_url}/auth/mobile-form-authorization'
-        data = {
-            "email": self.username,
-            "password": self.password
-        }
-        res = requests.post(full_url, json=data, timeout=DEFAULT_NET_DELAY)
-        if res.status_code == 200:
-            text = res.text
-            json = loads(text)
-            expired = datetime.strptime(json['expired'], '%Y-%m-%dT%H:%M:%S.%fZ')
-            return FlaskAPIToken(json['token'], expired)
-        else:
-            raise ApiError(f'Invalid api response ({res.status_code}): {res.text}')
+    def full_authorize_url(self) -> str:
+        return f'{self.base_url}/auth/mobile-form-authorization'
 
     def get_self(self, token: str) -> FlaskAPIIDPSelf:
         headers = {
@@ -177,7 +168,7 @@ def main():
 
     # 1
     api_token = api.authorize()
-    api_idp_token = api_idp.authorize(api_token.token)
+    api_idp_token = api_idp.authorize()
 
     # 2
     self_data = api_idp.get_self(api_idp_token.token)
