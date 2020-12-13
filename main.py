@@ -125,16 +125,13 @@ class FlaskAPIIDP:
         self.password = password
         self.base_url = base_url
 
-    def authorize(self, token: str) -> FlaskAPIToken:
+    def authorize(self) -> FlaskAPIToken:
         full_url = f'{self.base_url}/auth/mobile-form-authorization'
         data = {
             "email": self.username,
             "password": self.password
         }
-        headers = {
-            'Authorization': f'JWT {token}'  # or 'Bearer <ACCESS_TOKEN>'
-        }
-        res = requests.post(full_url, json=data, timeout=DEFAULT_NET_DELAY, headers=headers)
+        res = requests.post(full_url, json=data, timeout=DEFAULT_NET_DELAY)
         if res.status_code == 200:
             text = res.text
             json = loads(text)
