@@ -163,6 +163,13 @@ FLASK_API_IDP_PASSWORD = getenv('FLASK_API_IDP_PASSWORD')
 
 
 def main():
+    if not FLASK_API_USER or\
+            not FLASK_API_PASSWORD or\
+            not FLASK_API_IDP_USER or\
+            not FLASK_API_IDP_PASSWORD:
+        print('Need to test all credentials to run this code')
+        return
+
     api = FlaskAPI(FLASK_API_USER, FLASK_API_PASSWORD)
     api_idp = FlaskAPIIDP(FLASK_API_IDP_USER, FLASK_API_IDP_PASSWORD)
 
