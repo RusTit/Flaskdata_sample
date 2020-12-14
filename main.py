@@ -176,10 +176,13 @@ def main():
     # 3
     studies = api.subject_studies(api_idp_token.token, self_data.item_id)
 
-    study = studies[0]
-
-    # "study_id": 3581600, "subject_label": "001-023",
-    api.create_crf_and_insert_data(api_token.token, study.study_id, self_data.study_subject_label)
+    if studies:
+        study = studies[0]
+        print(f'Setting crf for {study.study_id} {study.brief_title}')
+        # "study_id": 3581600, "subject_label": "001-023",
+        api.create_crf_and_insert_data(api_token.token, study.study_id, self_data.study_subject_label)
+    else:
+        print('No studies found.')
 
 
 if __name__ == '__main__':
