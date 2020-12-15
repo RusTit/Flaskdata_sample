@@ -1,4 +1,4 @@
-# Sitemap processor
+# Flaskdata sample
 
 ![Python package](https://github.com/RusTit/Flaskdata_sample/workflows/Python%20package/badge.svg)
 
